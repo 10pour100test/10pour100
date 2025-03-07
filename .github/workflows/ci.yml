@@ -1,0 +1,45 @@
+name: CI - API Platform
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: symfony_db
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v2
+
+      - name: Configuration de PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'   # Adaptez la version de PHP utilisée dans votre projet
+
+      - name: Installation des dépendances Composer
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Lancer les migrations (si nécessaire)
+        run: php bin/console doctrine:migrations:migrate --no-interaction
+
+      - name: Exécuter les tests
+        run: vendor/bin/phpunit
