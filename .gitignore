@@ -12,3 +12,6 @@
 
 # Docker
 docker-compose.yml
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###
